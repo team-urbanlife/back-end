@@ -1,6 +1,7 @@
 package com.wegotoo.application.post;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.*;
 
 import com.wegotoo.application.OffsetLimit;
 import com.wegotoo.application.ServiceTestSupport;
@@ -11,6 +12,8 @@ import com.wegotoo.application.post.request.PostEditServiceRequest;
 import com.wegotoo.application.post.request.PostWriteServiceRequest;
 import com.wegotoo.application.post.response.PostFindAllResponse;
 import com.wegotoo.application.post.response.PostFindOneResponse;
+import com.wegotoo.domain.like.PostLike;
+import com.wegotoo.domain.like.repository.PostLikeRepository;
 import com.wegotoo.domain.post.Content;
 import com.wegotoo.domain.post.ContentType;
 import com.wegotoo.domain.post.Post;
@@ -21,6 +24,7 @@ import com.wegotoo.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.IntStream;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +39,9 @@ class PostServiceTest extends ServiceTestSupport {
     PostRepository postRepository;
 
     @Autowired
+    PostLikeRepository postLikeRepository;
+
+    @Autowired
     ContentRepository contentRepository;
 
     @Autowired
@@ -43,6 +50,7 @@ class PostServiceTest extends ServiceTestSupport {
     @AfterEach
     void tearDown() {
         contentRepository.deleteAllInBatch();
+        postLikeRepository.deleteAllInBatch();
         postRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
     }
@@ -70,9 +78,14 @@ class PostServiceTest extends ServiceTestSupport {
         assertThat(response)
                 .extracting("id", "title")
                 .contains(response.getId(), "제목");
-        assertThat(response.getContents().get(0))
-                .extracting("id", "type", "text")
-                .contains(1L, ContentType.T, "내용 0");
+        assertThat(response.getContents())
+                .extracting("type", "text")
+                .containsExactly(
+                        tuple(ContentType.T, "내용 0"),
+                        tuple(ContentType.T, "내용 1"),
+                        tuple(ContentType.T, "내용 2"),
+                        tuple(ContentType.T, "내용 3")
+                );
     }
 
     @Test
@@ -149,7 +162,8 @@ class PostServiceTest extends ServiceTestSupport {
         Content content7 = getContent(post1, ContentType.IMAGE, "이미지");
         Content content8 = getContent(post1, ContentType.T, "글123");
 
-        contentRepository.saveAll(List.of(content1, content2, content3, content4, content5, content6, content7, content8));
+        contentRepository.saveAll(
+                List.of(content1, content2, content3, content4, content5, content6, content7, content8));
         OffsetLimit offsetLimit = OffsetLimit.builder()
                 .offset(0)
                 .limit(10)
@@ -163,6 +177,48 @@ class PostServiceTest extends ServiceTestSupport {
         assertThat(response.getContent().get(0))
                 .extracting("postId", "title", "content", "thumbnail", "userName", "userProfileImage")
                 .contains(post.getId(), "제목", "글1", "이미지1", user.getName(), "이미지");
+    }
+
+    @Test
+    @DisplayName("좋아요한 게시글 조회")
+    void findAllPostLike() {
+        // given
+        User userA = userRepository.save(createUser("userA"));
+        User userB = userRepository.save(createUser("userB"));
+
+        Post postA = Post.builder()
+                .title("제목")
+                .view(0)
+                .user(userA)
+                .build();
+        postRepository.save(postA);
+
+        Post postB = Post.builder()
+                .title("제목")
+                .view(0)
+                .user(userB)
+                .build();
+        postRepository.save(postB);
+
+        PostLike postLike = PostLike.builder()
+                .post(postB)
+                .user(userA)
+                .build();
+        postLikeRepository.save(postLike);
+
+        Content content1 = getContent(postB, ContentType.IMAGE, "이미지");
+        Content content2 = getContent(postB, ContentType.IMAGE, "이미지1");
+        Content content3 = getContent(postB, ContentType.IMAGE, "이미지");
+        Content content4 = getContent(postB, ContentType.T, "글123");
+
+        contentRepository.saveAll(List.of(content1, content2, content3, content4));
+
+        // when
+        SliceResponse<PostFindAllResponse> response = postService.findAllLikePost(userA.getId(),
+                OffsetLimit.of(1, 5));
+
+        // then
+        assertThat(response.getContent()).hasSize(1);
     }
 
     @Test
@@ -192,6 +248,13 @@ class PostServiceTest extends ServiceTestSupport {
         PostFindOneResponse response = postService.findOnePost(post.getId());
         // then
         assertThat(response.getContents().size()).isEqualTo(4);
+    }
+
+    private static User createUser(String username) {
+        return User.builder()
+                .name(username)
+                .email(username + "@gmail.com")
+                .build();
     }
 
     private static Content getContent(Post post, ContentType type, String text) {

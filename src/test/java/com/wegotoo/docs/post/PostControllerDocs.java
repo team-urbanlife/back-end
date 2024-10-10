@@ -1,6 +1,5 @@
 package com.wegotoo.docs.post;
 
-import static com.wegotoo.domain.accompany.Gender.NO_MATTER;
 import static com.wegotoo.support.security.MockAuthUtils.authorizationHeaderName;
 import static com.wegotoo.support.security.MockAuthUtils.mockBearerToken;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,8 +37,6 @@ import com.wegotoo.api.post.request.PostEditRequest;
 import com.wegotoo.api.post.request.PostWriteRequest;
 import com.wegotoo.application.OffsetLimit;
 import com.wegotoo.application.SliceResponse;
-import com.wegotoo.application.accompany.response.AccompanyFindAllResponse;
-import com.wegotoo.application.accompany.response.AccompanyFindOneResponse;
 import com.wegotoo.application.post.response.ContentResponse;
 import com.wegotoo.application.post.response.PostFindAllResponse;
 import com.wegotoo.application.post.response.PostFindOneResponse;
@@ -189,7 +186,7 @@ public class PostControllerDocs extends RestDocsSupport {
                 .content(List.of(findAllResponse))
                 .hasContent(true)
                 .number(1)
-                .size(4)
+                .size(1)
                 .first(true)
                 .last(false)
                 .build();
@@ -254,6 +251,99 @@ public class PostControllerDocs extends RestDocsSupport {
                         )
                 ));
     }
+
+    @Test
+    @WithAuthUser
+    @DisplayName("좋아요한 여행 게시글을 조회하는 API")
+    void findLikePosts() throws Exception {
+        // given
+        LocalDateTime now = LocalDateTime.now().withNano(0);
+
+        PostFindAllResponse findAllResponse = PostFindAllResponse.builder()
+                .postId(1L)
+                .title("제목")
+                .content("첫 문단")
+                .thumbnail("첫 이미지")
+                .userName("작성자 이름")
+                .userProfileImage("작성자 프로필 이미지")
+                .registeredDateTime(now)
+                .likeCount(3L)
+                .build();
+
+        SliceResponse<PostFindAllResponse> response = SliceResponse.<PostFindAllResponse>builder()
+                .content(List.of(findAllResponse))
+                .hasContent(true)
+                .number(1)
+                .size(4)
+                .first(true)
+                .last(false)
+                .build();
+        // when
+        given(postService.findAllLikePost(anyLong(), any(OffsetLimit.class)))
+                .willReturn(response);
+
+        // then
+        mockMvc.perform(get("/v1/users/likes/posts")
+                        .param("page", "1")
+                        .param("size", "4")
+                        .header(authorizationHeaderName(), mockBearerToken())
+                        .contentType(APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("post/findAllLikes",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        queryParameters(
+                                parameterWithName("page").description("페이지")
+                                        .optional(),
+                                parameterWithName("size").description("페이지 사이즈")
+                                        .optional()
+                        ),
+                        requestHeaders(
+                                headerWithName(authorizationHeaderName()).description("어세스 토큰")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("코드"),
+                                fieldWithPath("status").type(JsonFieldType.STRING)
+                                        .description("상태"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("메시지"),
+                                fieldWithPath("data").type(OBJECT)
+                                        .description("응답 데이터"),
+                                fieldWithPath("data.hasContent").type(BOOLEAN)
+                                        .description("데이터 존재 여부"),
+                                fieldWithPath("data.isFirst").type(BOOLEAN)
+                                        .description("첫 번째 페이지 여부"),
+                                fieldWithPath("data.isLast").type(BOOLEAN)
+                                        .description("마지막 페이지 여부"),
+                                fieldWithPath("data.number").type(NUMBER)
+                                        .description("현재 페이지 번호"),
+                                fieldWithPath("data.size").type(NUMBER)
+                                        .description("게시글 반환 사이즈"),
+                                fieldWithPath("data.content[]").type(ARRAY)
+                                        .description("여행 일정 데이터"),
+                                fieldWithPath("data.content[].postId").type(NUMBER)
+                                        .description("Post ID"),
+                                fieldWithPath("data.content[].title").type(STRING)
+                                        .description("게시글 제목"),
+                                fieldWithPath("data.content[].content").type(STRING)
+                                        .description("게시글 첫 문단"),
+                                fieldWithPath("data.content[].thumbnail").type(STRING)
+                                        .description("썸네일"),
+                                fieldWithPath("data.content[].userName").type(STRING)
+                                        .description("작성자 이름"),
+                                fieldWithPath("data.content[].userProfileImage").type(STRING)
+                                        .description("유저 프로필 이미지"),
+                                fieldWithPath("data.content[].registeredDateTime").type(STRING)
+                                        .description("작성 일자"),
+                                fieldWithPath("data.content[].likeCount").type(NUMBER)
+                                        .description("좋아요 개수")
+                        )
+                ));
+    }
+
 
     @Test
     @WithAuthUser

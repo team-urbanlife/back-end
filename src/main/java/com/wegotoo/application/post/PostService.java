@@ -1,6 +1,9 @@
 package com.wegotoo.application.post;
 
-import static com.wegotoo.exception.ErrorCode.*;
+import static com.wegotoo.exception.ErrorCode.CONTENT_NOT_FOUND;
+import static com.wegotoo.exception.ErrorCode.POST_NOT_FOUND;
+import static com.wegotoo.exception.ErrorCode.UNAUTHORIZED_REQUEST;
+import static com.wegotoo.exception.ErrorCode.USER_NOT_FOUND;
 
 import com.wegotoo.application.OffsetLimit;
 import com.wegotoo.application.SliceResponse;
@@ -56,6 +59,25 @@ public class PostService {
 
     public SliceResponse<PostFindAllResponse> findAllPost(OffsetLimit offsetLimit) {
         List<PostQueryEntity> posts = postRepository.findAllPost(offsetLimit.getOffset(), offsetLimit.getLimit());
+
+        List<Long> postIds = posts.stream().map(PostQueryEntity::getId).toList();
+
+        List<ContentTextQueryEntity> allContentTexts = contentRepository.findAllPostWithContentText(postIds);
+        List<ContentImageQueryEntity> allContentImages = contentRepository.findAllPostWithContentImage(postIds);
+
+        List<ContentTextQueryEntity> firstContentText = getFirstContentText(allContentTexts);
+        List<ContentImageQueryEntity> firstContentImage = getFirstContentImage(allContentImages);
+
+        return SliceResponse.of(PostFindAllResponse.toList(posts, firstContentText, firstContentImage),
+                offsetLimit.getOffset(), offsetLimit.getLimit());
+    }
+
+    public SliceResponse<PostFindAllResponse> findAllLikePost(Long userId, OffsetLimit offsetLimit) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
+
+        List<PostQueryEntity> posts = postRepository.findAllLikePost(user.getId(), offsetLimit.getOffset(),
+                offsetLimit.getLimit());
 
         List<Long> postIds = posts.stream().map(PostQueryEntity::getId).toList();
 

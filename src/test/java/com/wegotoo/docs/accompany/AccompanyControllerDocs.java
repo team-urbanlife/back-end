@@ -290,11 +290,11 @@ public class AccompanyControllerDocs extends RestDocsSupport {
                 .last(false)
                 .build();
         // when
-        given(accompanyService.findAllAccompany(any(OffsetLimit.class)))
+        given(accompanyService.findAllUserAccompanies(anyLong(), any(OffsetLimit.class)))
                 .willReturn(response);
 
         // then
-        mockMvc.perform(get("/v1/accompanies")
+        mockMvc.perform(get("/v1/users/accompanies")
                         .param("page", "1")
                         .param("size", "4")
                         .header(authorizationHeaderName(), mockBearerToken())

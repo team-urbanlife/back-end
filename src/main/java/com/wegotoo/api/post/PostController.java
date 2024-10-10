@@ -42,6 +42,15 @@ public class PostController {
         return ApiResponse.ok(postService.findAllPost(OffsetLimit.of(page, size)));
     }
 
+    @GetMapping("/v1/users/likes/posts")
+    public ApiResponse<SliceResponse<PostFindAllResponse>> findAllLikePosts(
+            @Auth Long userId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+            @RequestParam(value = "size", required = false, defaultValue = "4") Integer size
+    ) {
+        return ApiResponse.ok(postService.findAllLikePost(userId, OffsetLimit.of(page, size)));
+    }
+
     @GetMapping("/v1/posts/{postId}")
     public ApiResponse<PostFindOneResponse> findOnePost(@PathVariable("postId") Long postId) {
         return ApiResponse.ok(postService.findOnePost(postId));

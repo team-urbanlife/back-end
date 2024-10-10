@@ -1,6 +1,7 @@
 package com.wegotoo.api.post;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -16,8 +17,10 @@ import com.wegotoo.domain.post.ContentType;
 import com.wegotoo.support.security.WithAuthUser;
 import java.util.List;
 import java.util.stream.IntStream;
+import lombok.With;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.test.context.support.WithMockUser;
 
 class PostControllerTest extends ControllerTestSupport {
 
@@ -100,6 +103,20 @@ class PostControllerTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("400"))
                 .andExpect(jsonPath("$.message").value("TEXT는 필수입니다."));
+    }
+
+    @Test
+    @WithAuthUser
+    @DisplayName("좋아요한 게시글 조회 API를 호출한다.")
+    void findLikePosts() throws Exception {
+        // when // then
+        mockMvc.perform(get("/v1/users/likes/posts")
+                .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"));
     }
 
     @Test

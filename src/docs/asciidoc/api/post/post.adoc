@@ -25,6 +25,17 @@ include::{snippets}/post/findAll/query-parameters.adoc[]
 include::{snippets}/post/findAll/http-response.adoc[]
 include::{snippets}/post/findAll/response-fields.adoc[]
 
+[[post-findAllLike]]
+=== 좋아요한 여행 게시글 무한 스크롤 조회
+==== HTTP Request
+include::{snippets}/post/findAllLikes/http-request.adoc[]
+include::{snippets}/post/findAllLikes/query-parameters.adoc[]
+include::{snippets}/post/findAllLikes/request-headers.adoc[]
+
+==== HTTP Response
+include::{snippets}/post/findAllLikes/http-response.adoc[]
+include::{snippets}/post/findAllLikes/response-fields.adoc[]
+
 [[post-findOne]]
 === 여행 게시글 단 건 조회
 

@@ -11,23 +11,44 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class PostRepositoryImpl implements PostRepositoryCustom{
+public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     @Override
     public List<PostQueryEntity> findAllPost(Integer offset, Integer size) {
         return queryFactory.select(new QPostQueryEntity(
-                post.id,
-                post.title,
-                user.name,
-                user.profileImage,
-                post.registeredDateTime,
-                postLike.count()
-        ))
+                        post.id,
+                        post.title,
+                        user.name,
+                        user.profileImage,
+                        post.registeredDateTime,
+                        postLike.count()
+                ))
                 .from(post)
                 .join(post.user, user)
                 .leftJoin(postLike).on(post.eq(postLike.post))
+                .offset(offset)
+                .limit(size + 1)
+                .groupBy(post.id)
+                .orderBy(post.registeredDateTime.desc())
+                .fetch();
+    }
+
+    @Override
+    public List<PostQueryEntity> findAllLikePost(Long userId, Integer offset, Integer size) {
+        return queryFactory.select(new QPostQueryEntity(
+                        post.id,
+                        post.title,
+                        user.name,
+                        user.profileImage,
+                        post.registeredDateTime,
+                        postLike.count()
+                ))
+                .from(post)
+                .join(post.user, user)
+                .leftJoin(postLike).on(post.eq(postLike.post))
+                .where(postLike.user.id.eq(userId))
                 .offset(offset)
                 .limit(size + 1)
                 .groupBy(post.id)

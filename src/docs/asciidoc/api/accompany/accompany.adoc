@@ -26,13 +26,13 @@ include::{snippets}/accompany/findAll/http-response.adoc[]
 include::{snippets}/accompany/findAll/response-fields.adoc[]
 
 [[accompany-findAllByUser]]
-== 사용자 동행 모집 글 조회
-=== HTTP Request
+=== 사용자 동행 모집 글 조회
+==== HTTP Request
 include::{snippets}/accompany/findAllByUser/http-request.adoc[]
 include::{snippets}/accompany/findAllByUser/request-headers.adoc[]
 include::{snippets}/accompany/findAllByUser/query-parameters.adoc[]
 
-=== HTTP Response
+==== HTTP Response
 include::{snippets}/accompany/findAllByUser/http-response.adoc[]
 include::{snippets}/accompany/findAllByUser/response-fields.adoc[]
 
