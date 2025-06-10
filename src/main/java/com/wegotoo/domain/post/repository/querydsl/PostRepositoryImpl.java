@@ -17,6 +17,13 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public List<PostQueryEntity> findAllPost(Integer offset, Integer size) {
+        List<Long> ids = queryFactory.select(post.id)
+                .from(post)
+                .limit(size + 1)
+                .offset(offset)
+                .orderBy(post.id.desc())
+                .fetch();
+
         return queryFactory.select(new QPostQueryEntity(
                         post.id,
                         post.title,
@@ -28,10 +35,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .from(post)
                 .join(post.user, user)
                 .leftJoin(postLike).on(post.eq(postLike.post))
-                .offset(offset)
-                .limit(size + 1)
-                .groupBy(post.id)
-                .orderBy(post.registeredDateTime.desc())
+                .where(post.id.in(ids))
+                .groupBy(post.id, post.title, user.name, user.profileImage, post.registeredDateTime)
+                .orderBy(post.id.desc())
                 .fetch();
     }
 
