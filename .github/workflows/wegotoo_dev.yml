@@ -85,7 +85,7 @@ jobs:
   deploy_to_ec2:
     needs: develop
     runs-on: ubuntu-22.04
-    if: ${{ secrets.ENABLE_EC2_DEV_DEPLOY == 'true' }}
+    if: ${{ vars.ENABLE_EC2_DEV_DEPLOY == 'true' }}
     steps:
       - name: Get GitHub IP
         id: ip
