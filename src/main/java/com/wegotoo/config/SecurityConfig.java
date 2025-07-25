@@ -53,6 +53,7 @@ public class SecurityConfig {
                                 .requestMatchers("/v1/s3/**").permitAll()
                                 .requestMatchers("/v1/cities").permitAll()
                                 .requestMatchers(GET, "/v1/posts/**").permitAll()
+                                .requestMatchers("/actuator/**").permitAll()
                                 .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandlingConfigurer ->
                         exceptionHandlingConfigurer.authenticationEntryPoint(entryPoint))
