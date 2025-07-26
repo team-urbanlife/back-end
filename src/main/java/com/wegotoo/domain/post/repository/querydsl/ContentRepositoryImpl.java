@@ -19,9 +19,15 @@ public class ContentRepositoryImpl implements ContentRepositoryCustom {
 
     @Override
     public Map<Long, List<ContentQueryEntity>> findAllByPostIds(List<Long> postIds) {
+        List<Long> ids = queryFactory.select(content.id.min())
+                .from(content)
+                .where(content.post.id.in(postIds))
+                .groupBy(content.post.id, content.type)
+                .fetch();
+
         return queryFactory.from(content)
                 .join(content.post, post)
-                .where(content.post.id.in(postIds))
+                .where(content.id.in(ids))
                 .transform(groupBy(post.id).as(list(new QContentQueryEntity(
                                 post.id,
                                 content.id,

@@ -1,6 +1,7 @@
 package com.wegotoo.domain.post.repository.querydsl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 import com.wegotoo.domain.DataJpaTestSupport;
 import com.wegotoo.domain.post.Content;
@@ -44,18 +45,24 @@ class ContentRepositoryImplTest extends DataJpaTestSupport {
         User user = userRepository.save(createUser("userA"));
         Post post = postRepository.save(createPost(user));
 
-        List<Content> contents = contentRepository.saveAll(List.of(
-                createContent(post, ContentType.T, "글1"),
-                createContent(post, ContentType.IMAGE, "이미지1"),
-                createContent(post, ContentType.T, "글2"),
-                createContent(post, ContentType.IMAGE, "이미지2")
-        ));
+        Content content1 = createContent(post, ContentType.T, "컨텐츠 텍스트1");
+        Content content2 = createContent(post, ContentType.IMAGE, "컨텐츠 이미지1");
+        Content content3 = createContent(post, ContentType.T, "컨텐츠 텍스트2");
+        Content content4 = createContent(post, ContentType.IMAGE, "컨텐츠 이미지2");
+
+        List<Content> contents = contentRepository.saveAll(List.of(content1, content2, content3, content4));
 
         // when
         Map<Long, List<ContentQueryEntity>> result = contentRepository.findAllByPostIds(List.of(post.getId()));
 
         // then
-        assertThat(result.get(post.getId())).hasSize(4);
+        assertThat(result.get(post.getId())).hasSize(2);
+        assertThat(result.get(post.getId()))
+                .extracting("postId", "contentId", "text", "contentType")
+                .contains(
+                        tuple(post.getId(), content1.getId(), "컨텐츠 텍스트1", ContentType.T),
+                        tuple(post.getId(), content2.getId(), "컨텐츠 이미지1", ContentType.IMAGE)
+                );
     }
 
 

@@ -138,29 +138,29 @@ class PostServiceTest extends ServiceTestSupport {
                 .build();
         userRepository.save(user);
 
-        Post post = Post.builder()
-                .title("제목")
-                .view(0)
-                .user(user)
-                .build();
-        postRepository.save(post);
-
         Post post1 = Post.builder()
-                .title("제목")
+                .title("게시글1 제목")
                 .view(0)
                 .user(user)
                 .build();
         postRepository.save(post1);
 
-        Content content1 = getContent(post, ContentType.T, "글1");
-        Content content2 = getContent(post, ContentType.IMAGE, "이미지1");
-        Content content3 = getContent(post, ContentType.T, "글2");
-        Content content4 = getContent(post, ContentType.IMAGE, "이미지2");
+        Post post2 = Post.builder()
+                .title("게시글2 제목")
+                .view(0)
+                .user(user)
+                .build();
+        postRepository.save(post2);
 
-        Content content5 = getContent(post1, ContentType.IMAGE, "이미지");
-        Content content6 = getContent(post1, ContentType.IMAGE, "이미지1");
-        Content content7 = getContent(post1, ContentType.IMAGE, "이미지");
-        Content content8 = getContent(post1, ContentType.T, "글123");
+        Content content1 = getContent(post1, ContentType.T, "콘텐츠 텍스트1");
+        Content content2 = getContent(post1, ContentType.IMAGE, "콘텐츠 이미지1");
+        Content content3 = getContent(post1, ContentType.T, "콘텐츠 텍스트2");
+        Content content4 = getContent(post1, ContentType.IMAGE, "콘텐츠 이미지2");
+
+        Content content5 = getContent(post2, ContentType.IMAGE, "콘텐츠 이미지1");
+        Content content6 = getContent(post2, ContentType.IMAGE, "콘텐츠 이미지2");
+        Content content7 = getContent(post2, ContentType.IMAGE, "콘텐츠 이미지3");
+        Content content8 = getContent(post2, ContentType.T, "콘텐츠 텍스트1");
 
         contentRepository.saveAll(
                 List.of(content1, content2, content3, content4, content5, content6, content7, content8));
@@ -174,9 +174,12 @@ class PostServiceTest extends ServiceTestSupport {
 
         // then
         assertThat(response.getSize()).isEqualTo(2);
-        assertThat(response.getContent().get(0))
+        assertThat(response.getContent())
                 .extracting("postId", "title", "content", "thumbnail", "userName", "userProfileImage")
-                .contains(post.getId(), "제목", "글1", "이미지1", user.getName(), "이미지");
+                .containsExactly(
+                        tuple(post2.getId(), "게시글2 제목", "콘텐츠 텍스트1", "콘텐츠 이미지1", user.getName(), "이미지"),
+                        tuple(post1.getId(), "게시글1 제목", "콘텐츠 텍스트1", "콘텐츠 이미지1", user.getName(), "이미지")
+                );
     }
 
     @Test

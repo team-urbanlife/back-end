@@ -73,11 +73,15 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+    // Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
     // 날짜/시간 타입을 직렬화
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // Embedded Mongo
-    implementation 'de.bwaldvogel:mongo-java-server:1.45.0'
+    implementation 'de.bwaldvogel:mongo-java-server:1.47.0'
 
     // Embedded Redis
     implementation 'com.github.codemonstur:embedded-redis:1.4.3'

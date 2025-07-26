@@ -35,3 +35,16 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 100MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  health:
+    mongo:
+      enabled: false
+  prometheus:
+    metrics:
+      export:
+        enabled: true
