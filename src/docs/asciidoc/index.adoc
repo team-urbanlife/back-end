@@ -52,10 +52,6 @@ include::api/city/city.adoc[]
 == 인증/인가 API
 include::api/auth/auth.adoc[]
 
-[[Notification-API]]
-== 알림 구독 API
-include::api/notification/notification.adoc[]
-
 [[S3-API]]
 == S3 API
 include::api/s3/s3.adoc[]
