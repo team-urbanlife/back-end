@@ -6,7 +6,6 @@ import com.wegotoo.api.chat.ChatController;
 import com.wegotoo.api.chatroom.ChatRoomController;
 import com.wegotoo.api.city.CityController;
 import com.wegotoo.api.like.PostLikeController;
-import com.wegotoo.api.notification.NotificationController;
 import com.wegotoo.api.post.PostController;
 import com.wegotoo.api.s3.S3Controller;
 import com.wegotoo.api.schedule.DetailedPlanController;
@@ -39,7 +38,6 @@ import org.springframework.context.annotation.Import;
         AccompanyController.class,
         CityController.class,
         AuthController.class,
-        NotificationController.class,
         S3Controller.class,
         PostController.class,
         ChatController.class,

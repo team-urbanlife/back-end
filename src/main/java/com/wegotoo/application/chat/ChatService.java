@@ -8,7 +8,6 @@ import com.wegotoo.application.CursorResponse;
 import com.wegotoo.application.chat.request.ChatSendServiceRequest;
 import com.wegotoo.application.chat.response.ChatResponse;
 import com.wegotoo.application.chat.response.LastReadResponse;
-import com.wegotoo.application.notification.event.ChatMessageSentEvent;
 import com.wegotoo.domain.chat.Chat;
 import com.wegotoo.domain.chat.ChatRoomStatus;
 import com.wegotoo.domain.chat.repository.ChatRepository;
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +31,6 @@ public class ChatService {
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
     private final ChatRoomStatusRepository chatRoomStatusRepository;
-    private final ApplicationEventPublisher eventPublisher;
 
     public CursorResponse<String, ChatResponse> findAllChats(Long userId, Long chatRoomId, String cursorId,
                                                              Integer limit) {
@@ -64,9 +61,6 @@ public class ChatService {
                 .orElseThrow(() -> new BusinessException(NOT_VALID_USER));
 
         Chat chat = chatRepository.save(request.toDocument(user.getId()));
-
-        eventPublisher.publishEvent(ChatMessageSentEvent.to(user.getId(), request.getChatRoomId(), request.getMessage()));
-
         return ChatResponse.of(user, chat);
     }
 
