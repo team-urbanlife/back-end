@@ -16,6 +16,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory.ConfirmType;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -93,6 +94,9 @@ public class RabbitMQConfig {
         connectionFactory.setUsername(username);
         connectionFactory.setPassword(password);
 
+        connectionFactory.setPublisherConfirmType(ConfirmType.CORRELATED);
+        connectionFactory.setPublisherReturns(true);
+
         return connectionFactory;
     }
 
@@ -103,6 +107,7 @@ public class RabbitMQConfig {
         rabbitTemplate.setMessageConverter(messageConverter);
         rabbitTemplate.setExchange(MAIN_EXCHANGE_NAME);
         rabbitTemplate.setRoutingKey(MAIN_ROUTING_KEY);
+        rabbitTemplate.setMandatory(true);
 
         return rabbitTemplate;
     }
