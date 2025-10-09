@@ -44,3 +44,4 @@ application-prod.yml
 application-oauth.yml
 application-jwt.yml
 application-s3.yml
+application-slack.yml

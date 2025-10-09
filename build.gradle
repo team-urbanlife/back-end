@@ -90,6 +90,9 @@ dependencies {
     // Embedded Redis
     implementation 'com.github.codemonstur:embedded-redis:1.4.3'
 
+    // Slack
+    implementation 'com.slack.api:slack-api-client:1.40.0'
+
     // S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }

@@ -10,5 +10,6 @@ public class RabbitMQProperties {
     public static final String DLX_NAME = "app.sse.error";
     public static final String DLQ_NAME = "app.sse.queue.dead";
     public static final String DLQ_ROUTING_KEY = "sse.dead";
+    public static final String PUBLISHER_RETRY_EXCHANGE = "publish.retry.delayed";
 
 }

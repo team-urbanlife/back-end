@@ -13,3 +13,4 @@ spring:
       - jwt
       - oauth
       - s3
+      - slack
